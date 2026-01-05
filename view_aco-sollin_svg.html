@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>b-ACO Sollin/Borůvka – Diagram dan Langkah</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#111a33;
+      --text:#e8ecff;
+      --muted:#b8c0ff;
+      --line:rgba(255,255,255,.12);
+      --accent:#7c3aed;
+      --shadow: 0 14px 34px rgba(0,0,0,.38);
+      --radius: 18px;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(900px 600px at 80% 30%, rgba(34,197,94,.14), transparent 55%),
+        var(--bg);
+      line-height:1.6;
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 22px 16px 44px;
+      display:flex;
+      flex-direction:column;
+      gap: 16px;
+    }
+    .hero{
+      padding: 18px 18px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(124,58,237,.18), rgba(255,255,255,.04));
+      box-shadow: var(--shadow);
+    }
+    h1{
+      margin:0 0 6px 0;
+      font-size: 20px;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color: var(--muted);
+      font-size: 13.5px;
+      max-width: 980px;
+    }
+    .card{
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--shadow);
+    }
+    .imgbox{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      overflow:hidden;
+    }
+    .imgnote{
+      margin-top:10px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+    /* Make the SVG fill the available width */
+    .imgbox img, .imgbox object{
+      width: 100%;
+      height: auto;
+      display:block;
+    }
+    .steps h2{
+      margin:0 0 10px 0;
+      font-size: 16px;
+    }
+    ol{margin:0 0 0 18px; padding:0}
+    li{margin:8px 0}
+    .kbd{
+      font-family:var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      color: #dbe3ff;
+    }
+    .inline-math{
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: #dbe3ff;
+      padding: 2px 8px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      background: rgba(0,0,0,.20);
+      display:inline-block;
+    }
+    .callout{
+      margin-top: 12px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(124,58,237,.35);
+      background: rgba(124,58,237,.10);
+      color: var(--muted);
+      font-size: 12.8px;
+    }
+    .footer{
+      color: var(--muted);
+      font-size: 12px;
+      padding: 10px 2px 0;
+      opacity:.92;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Diagram b-ACO Sollin/Borůvka untuk d-MST</h1>
+      <p class="sub">
+        Halaman ini menampilkan gambar <span class="kbd">aco-sollin.svg</span> secara penuh, diikuti langkah algoritma ringkas.
+        Simpan file HTML ini <strong>di folder yang sama</strong> dengan <span class="kbd">aco-sollin.svg</span>.
+      </p>
+    </section>
+
+    <section class="card">
+      <div class="imgbox">
+        <!-- Prefer <img>. If the SVG doesn't load in some viewers, the <object> fallback can help. -->
+        <img src="aco-sollin.svg" alt="Diagram aco-sollin.svg" />
+      </div>
+
+      <div class="imgnote">
+        Jika gambar tidak muncul, pastikan file <span class="kbd">aco-sollin.svg</span> berada di folder yang sama dengan HTML ini.
+      </div>
+    </section>
+
+    <section class="card steps">
+      <h2>Langkah-langkah b-ACO Sollin/Borůvka untuk d-MST</h2>
+
+      <ol>
+        <li><strong>Mulai.</strong></li>
+
+        <li><strong>Input</strong>: graf berbobot, jumlah simpul <span class="inline-math">n</span>, batas derajat <span class="inline-math">d</span>, parameter ACO
+          <span class="inline-math">α</span>, <span class="inline-math">β</span>, <span class="inline-math">ρ</span>, <span class="inline-math">Q</span>,
+          jumlah semut, dan iterasi maksimum.</li>
+
+        <li><strong>Inisialisasi feromon</strong>: set nilai awal feromon pada semua edge, misalnya <span class="inline-math">τ₀</span>.</li>
+
+        <li><strong>Untuk setiap iterasi</strong> dari <span class="inline-math">t = 1</span> sampai <span class="inline-math">MaxIter</span>:
+          <ol>
+            <li>Set solusi terbaik iterasi = kosong.</li>
+            <li>Untuk setiap semut:
+              <ol>
+                <li><strong>Inisialisasi komponen</strong>: setiap simpul dianggap 1 komponen, solusi edge <span class="inline-math">E = ∅</span>, derajat setiap simpul = 0.</li>
+                <li><strong>Ulangi selama jumlah komponen &gt; 1</strong>:
+                  <ol>
+                    <li>Untuk setiap komponen, buat daftar kandidat edge yang keluar dari komponen menuju komponen lain.</li>
+                    <li>Pilih satu edge menggunakan probabilitas ACO berdasarkan feromon dan heuristik biaya, dengan syarat:
+                      <ul>
+                        <li>tidak membentuk siklus antar komponen,</li>
+                        <li>tidak melanggar batas derajat: derajat u + 1 ≤ d dan derajat v + 1 ≤ d.</li>
+                      </ul>
+                    </li>
+                    <li>Kumpulkan edge terpilih dari semua komponen.</li>
+                    <li>Tambahkan edge-edge yang valid ke solusi; jika terjadi konflik atau duplikasi, ambil yang tetap valid.</li>
+                    <li>Update komponen: gabungkan komponen yang tersambung oleh edge-edge tersebut; update derajat simpul.</li>
+                  </ol>
+                </li>
+                <li>Hitung cost solusi semut, yaitu total bobot edge pada solusi.</li>
+                <li>Simpan jika solusi semut lebih baik dari solusi terbaik iterasi.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+
+        <li><strong>Update feromon</strong>:
+          <ul>
+            <li>Evaporasi: kurangi feromon semua edge dengan faktor <span class="inline-math">ρ</span>.</li>
+            <li>Deposit: tambahkan feromon pada edge solusi terbaik, misalnya proporsional terhadap <span class="inline-math">1 / cost</span>.</li>
+          </ul>
+        </li>
+
+        <li><strong>Cek terminasi</strong> (opsional early stopping): jika solusi terbaik tidak membaik selama beberapa iterasi, hentikan lebih awal.</li>
+
+        <li><strong>Output</strong>: solusi terbaik keseluruhan berupa tree yang memenuhi batas derajat.</li>
+
+        <li><strong>Selesai.</strong></li>
+      </ol>
+
+      <div class="callout">
+        <strong>Catatan singkat:</strong> “paralel tingkat komponen” berarti pada setiap fase Borůvka, setiap komponen dapat memilih edge keluar secara independen
+        sebelum proses merge dilakukan.
+      </div>
+
+      <div class="footer">
+       
+	   <hr>
+         Dokumen dan Flowchart<br/>
+<ol>
+<li><a target="_blank"  href="index.html">Home</a></li>
+<li><a target="_blank"  href="view_aco-sollin_svg.html">Flowchart ACO-Sollin</a></li>
+<li><a target="_blank"  href="view_aco-mst_svg.html">Flowchart ACO-MST</a></li>
+<li><a target="_blank"  href="https://docs.google.com/document/d/1GvOuS4LKmm7srjHab-jPlCEm5Zq_GwSC/edit?usp=sharing&ouid=117797647128579302364&rtpof=true&sd=true">Novelty Sollin atas 'Bau</a></li>
+<li><a target="_blank" href="https://jise.iis.sinica.edu.tw/JISESearch/fullText;jsessionid=81803892bfa0ea9437213cc10caa?pId=722&code=F4C2981DBC8EF66">Dokumen 'Bau 2008</a></li>
+</ol>
+
+	   
+	   
+      </div>
+    </section>
+  </div>
+</body>
+</html>

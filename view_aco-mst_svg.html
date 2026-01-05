@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flowchart 3 ACO MST: p-ACO, k-ACO, b-ACO</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --text:#e8ecff;
+      --muted:#b8c0ff;
+      --line:rgba(255,255,255,.12);
+      --shadow: 0 14px 34px rgba(0,0,0,.38);
+      --radius: 18px;
+      --accent:#7c3aed;
+      --accent2:#22c55e;
+      --accent3:#f59e0b;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(900px 600px at 80% 30%, rgba(34,197,94,.14), transparent 55%),
+        radial-gradient(900px 600px at 50% 90%, rgba(245,158,11,.12), transparent 55%),
+        var(--bg);
+      line-height:1.6;
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 22px 16px 44px;
+      display:flex;
+      flex-direction:column;
+      gap: 16px;
+    }
+    .hero{
+      padding: 18px 18px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(124,58,237,.18), rgba(255,255,255,.04));
+      box-shadow: var(--shadow);
+    }
+    h1{
+      margin:0 0 6px 0;
+      font-size: 20px;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color: var(--muted);
+      font-size: 13.5px;
+      max-width: 980px;
+    }
+    .pillrow{display:flex; flex-wrap:wrap; gap:8px; margin-top: 12px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      font-size: 12px;
+      color: var(--text);
+    }
+    .dot{width:8px; height:8px; border-radius:999px; background: var(--accent2)}
+    .dot.purple{background: var(--accent)}
+    .dot.orange{background: var(--accent3)}
+    .card{
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--shadow);
+    }
+    .imgbox{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      overflow:hidden;
+    }
+    .imgbox img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    h2{
+      margin:0 0 10px 0;
+      font-size: 16px;
+    }
+    p{margin:8px 0; color: var(--text)}
+    .muted{color: var(--muted)}
+    .kbd{
+      font-family:var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      color: #dbe3ff;
+    }
+    ul{margin:8px 0 0 18px}
+    li{margin:6px 0}
+    .grid3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .mini{
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+    }
+    .mini h3{
+      margin:0 0 6px 0;
+      font-size: 14px;
+    }
+    .mini p{margin:0; color: var(--muted); font-size: 12.8px}
+    .footer{
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      opacity:.92;
+    }
+    @media (max-width: 980px){
+      .grid3{grid-template-columns: 1fr;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Flowchart 3 Konstruksi ACO untuk MST: p-ACO, k-ACO, b-ACO</h1>
+      <p class="sub">
+        Halaman ini menampilkan gambar <span class="kbd">aco-mst.svg</span> secara penuh, lalu memberi penjelasan praktis
+        tentang perbedaan tiga cara konstruksi solusi ACO untuk masalah MST dengan batas derajat.
+        Simpan file HTML ini <strong>di folder yang sama</strong> dengan <span class="kbd">aco-mst.svg</span>.
+      </p>
+      <div class="pillrow">
+        <span class="pill"><span class="dot purple"></span> p-ACO Prim based</span>
+        <span class="pill"><span class="dot orange"></span> k-ACO Kruskal based</span>
+        <span class="pill"><span class="dot"></span> b-ACO Boruvka Sollin based</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="imgbox">
+        <img src="aco-mst.svg" alt="Diagram aco-mst.svg" />
+      </div>
+      <div class="footer">
+        Jika gambar tidak muncul, pastikan file <span class="kbd">aco-mst.svg</span> berada di folder yang sama dengan HTML ini.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Penjelasan flowchart: apa beda p-ACO, k-ACO, dan b-ACO</h2>
+      <p class="muted">
+        Ketiganya memakai ACO, tetapi <strong>beda pada cara membangun solusi</strong>. ACO menentukan peluang pemilihan edge
+        lewat feromon dan heuristik, sedangkan Prim, Kruskal, dan Boruvka menentukan “urutan konstruksi”.
+      </p>
+
+      <div class="grid3">
+        <div class="mini">
+          <h3>p-ACO Prim based</h3>
+          <p>Mulai dari satu simpul, lalu tumbuh satu demi satu edge dari set yang sudah terhubung.</p>
+          <ul>
+            <li>Pilih kandidat edge dari T ke luar T</li>
+            <li>Tambah 1 edge tiap langkah</li>
+            <li>Cek batas derajat</li>
+          </ul>
+        </div>
+
+        <div class="mini">
+          <h3>k-ACO Kruskal based</h3>
+          <p>Pilih edge global dari seluruh graf, satu per satu, sambil mencegah siklus.</p>
+          <ul>
+            <li>Pakai Union Find untuk cek siklus</li>
+            <li>Tambah 1 edge tiap langkah</li>
+            <li>Cek batas derajat</li>
+          </ul>
+        </div>
+
+        <div class="mini">
+          <h3>b-ACO Boruvka Sollin based</h3>
+          <p>Bangun per fase: tiap komponen memilih 1 edge keluar, lalu merge serentak.</p>
+          <ul>
+            <li>Per komponen pilih edge keluar terbaik</li>
+            <li>Lebih paralel secara konsep</li>
+            <li>Filter konflik degree dan siklus</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="muted" style="margin-top:14px">
+        Ringkasnya: <strong>p-ACO dan k-ACO sekuensial</strong> karena menambah edge satu per satu, sedangkan
+        <strong>b-ACO lebih “paralel”</strong> karena memilih edge per komponen dalam satu fase sebelum merge.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Ringkasan struktur flowchart sesuai teks teknis</h2>
+      <p class="muted">Berikut rangkuman isi flowchart yang Anda berikan, ditulis ulang menjadi poin singkat.</p>
+      <ul>
+        <li><strong>p-ACO</strong>: pilih simpul awal, ulangi sampai semua simpul masuk T, tiap langkah pilih 1 edge dari T ke luar T, cek degree, selesai saat jumlah edge n minus 1.</li>
+        <li><strong>k-ACO</strong>: mulai dengan E kosong dan Union Find, ulangi sampai jumlah edge n minus 1, pilih 1 edge global, cek siklus dan degree, union komponen.</li>
+        <li><strong>b-ACO</strong>: mulai dengan tiap simpul sebagai 1 komponen, ulangi sampai komponen tinggal 1, tiap komponen pilih 1 edge keluar terbaik, kumpulkan, filter konflik, merge komponen.</li>
+      </ul>
+    </section>
+  </div>
+ <hr>
+         Dokumen dan Flowchart<br/>
+<ol>
+<li><a target="_blank"  href="index.html">Home</a></li>
+<li><a target="_blank"  href="view_aco-sollin_svg.html">Flowchart ACO-Sollin</a></li>
+<li><a target="_blank"  href="view_aco-mst_svg.html">Flowchart ACO-MST</a></li>
+<li><a target="_blank"  href="https://docs.google.com/document/d/1GvOuS4LKmm7srjHab-jPlCEm5Zq_GwSC/edit?usp=sharing&ouid=117797647128579302364&rtpof=true&sd=true">Novelty Sollin atas 'Bau</a></li>
+<li><a target="_blank" href="https://jise.iis.sinica.edu.tw/JISESearch/fullText;jsessionid=81803892bfa0ea9437213cc10caa?pId=722&code=F4C2981DBC8EF66">Dokumen 'Bau 2008</a></li>
+</ol>
+
+</body>
+</html>

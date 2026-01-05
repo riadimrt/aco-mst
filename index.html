@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Algoritma Ant Colony Paralel Tingkat Komponen dengan Konstruksi Borůvka dan Terminasi Dini</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#111a33;
+      --card2:#0f1730;
+      --text:#e8ecff;
+      --muted:#b8c0ff;
+      --accent:#7c3aed;
+      --accent2:#22c55e;
+      --accent3:#f59e0b;
+      --danger:#fb7185;
+      --line:rgba(255,255,255,.10);
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--sans);
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(124,58,237,.25), transparent 60%),
+                  radial-gradient(900px 600px at 80% 30%, rgba(34,197,94,.18), transparent 55%),
+                  radial-gradient(900px 600px at 50% 90%, rgba(245,158,11,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.55;
+    }
+    a{color:var(--muted)}
+    .wrap{
+      display:grid;
+      grid-template-columns: 290px 1fr;
+      gap: 22px;
+      padding: 22px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .sidebar{
+      position: sticky;
+      top: 18px;
+      height: calc(100vh - 36px);
+      overflow:auto;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .brand{
+      display:flex; gap:12px; align-items:center; margin-bottom:10px;
+    }
+    .logo{
+      width:42px; height:42px; border-radius: 14px;
+      background: conic-gradient(from 140deg, var(--accent), var(--accent2), var(--accent3), var(--accent));
+      box-shadow: 0 10px 24px rgba(124,58,237,.25);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .brand h3{margin:0; font-size: 14px; letter-spacing:.2px}
+    .brand p{margin:0; color:var(--muted); font-size:12px}
+    .nav{
+      margin-top: 14px;
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .nav a{
+      text-decoration:none;
+      padding:10px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .nav a:hover{border-color: rgba(255,255,255,.14); background: rgba(255,255,255,.05)}
+    .main{
+      display:flex; flex-direction:column; gap: 18px;
+    }
+    .hero{
+      padding: 22px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(124,58,237,.16), rgba(34,197,94,.10) 60%, rgba(245,158,11,.10));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .title{
+      margin:0 0 6px 0;
+      font-size: 22px;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 920px;
+    }
+    .pillrow{display:flex; flex-wrap:wrap; gap:8px; margin-top: 14px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      font-size: 12px;
+      color: var(--text);
+    }
+    .dot{width:8px; height:8px; border-radius:999px; background: var(--accent2)}
+    .dot.orange{background: var(--accent3)}
+    .dot.purple{background: var(--accent)}
+    .dot.pink{background: var(--danger)}
+    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap: 16px}
+    .card{
+      padding: 18px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .card h2{margin:0 0 10px 0; font-size: 16px}
+    .card p{margin: 8px 0; color: var(--text)}
+    .muted{color: var(--muted)}
+    ul{margin:10px 0 0 18px}
+    li{margin: 6px 0}
+    .callout{
+      border-left: 4px solid var(--accent3);
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(245,158,11,.10);
+      margin-top: 10px;
+    }
+    .callout strong{color: #ffe6b3}
+    .kbd{
+      font-family:var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.25);
+    }
+    pre{
+      margin: 12px 0 0 0;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.26);
+      overflow:auto;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height:1.45;
+      color: #dbe3ff;
+    }
+    code{font-family: var(--mono)}
+    .footer{
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .badge{
+      display:inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(124,58,237,.18);
+      color: #efe7ff;
+    }
+    .table{
+      width:100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow:hidden;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .table th, .table td{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      font-size: 13px;
+      vertical-align: top;
+    }
+    .table th{
+      text-align:left;
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-weight:600;
+    }
+    .table tr:last-child td{border-bottom:none}
+    .small{font-size:12px}
+    .flowwrap{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      padding: 14px;
+      overflow:auto;
+    }
+    /* Responsive */
+    @media (max-width: 960px){
+      .wrap{grid-template-columns: 1fr; padding: 14px;}
+      .sidebar{position: relative; height:auto;}
+      .grid2{grid-template-columns: 1fr;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h3>Ringkasan untuk Promotor</h3>
+          <p>Langkah, konsep, dan flowchart b-ACO</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Judul diset 20 kata</strong><br/>
+        sesuai batas maksimal yang diminta.
+      </div>
+
+      <nav class="nav" aria-label="Navigasi">
+        <a href="#judul">Judul & konteks</a>
+        <a href="#konsep">Apa itu paralel tingkat komponen</a>
+        <a href="#posisi">Posisi Borůvka di ACO</a>
+        <a href="#langkah">Langkah algoritma ringkas</a>
+        <a href="#flowchart">Flowchart b-ACO</a>
+        <a href="#early">Terminasi dini bukan sekadar menunggu konvergen</a>
+        <a href="#catatan">Catatan implementasi</a>
+      </nav>
+
+      <div class="footer" style="margin-top:14px">
+        Dokumen dan Flowchart<br/>
+<ol>
+<li><a target="_blank"  href="view_aco-sollin_svg.html">Flowchart ACO-Sollin</a></li>
+<li><a target="_blank"  href="view_aco-mst_svg.html">Flowchart ACO-MST</a></li>
+<li><a target="_blank"  href="https://docs.google.com/document/d/1GvOuS4LKmm7srjHab-jPlCEm5Zq_GwSC/edit?usp=sharing&ouid=117797647128579302364&rtpof=true&sd=true">Novelty Sollin atas 'Bau</a></li>
+<li><a target="_blank" href="https://jise.iis.sinica.edu.tw/JISESearch/fullText;jsessionid=81803892bfa0ea9437213cc10caa?pId=722&code=F4C2981DBC8EF66">Dokumen 'Bau 2008</a></li>
+<li><a target="_blank"  href="doc.md">Bantuan File .md</a></li>
+</ol>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero" id="judul">
+        <h1 class="title">Pengembangan Algoritma Ant Colony Paralel Tingkat Komponen dengan Konstruksi Borůvka dan Terminasi Dini Untuk Menyelesaikan Masalah Keterhandalan dan Ketahanan Jaringan</h1>
+        <p class="subtitle">
+          Inti kebaruan: mengganti cara membangun topologi dari <span class="kbd">sekuensial satu edge per langkah</span>
+          menjadi <span class="kbd">pemilihan edge per komponen per fase</span> ala Borůvka, lalu menambah
+          <span class="kbd">terminasi dini</span> agar iterasi tidak boros ketika solusi sudah stabil.
+        </p>
+        <div class="pillrow">
+          <span class="pill"><span class="dot purple"></span> Borůvka construction</span>
+          <span class="pill"><span class="dot"></span> Paralel tingkat komponen</span>
+          <span class="pill"><span class="dot orange"></span> Early termination</span>
+          <span class="pill"><span class="dot pink"></span> Node capacity atau port limit</span>
+        </div>
+      </section>
+
+      <section class="grid2">
+        <div class="card" id="konsep">
+          <h2>Apa yang dimaksud paralel tingkat komponen</h2>
+          <p class="muted">
+            Komponen adalah kelompok node yang sudah tersambung sementara. Pada Borůvka, setiap komponen memilih satu edge keluar terbaik,
+            lalu semua komponen digabung bersamaan dalam satu fase.
+          </p>
+          <ul>
+            <li><strong>Level paralel 1</strong>: setiap semut membangun solusi sendiri.</li>
+            <li><strong>Level paralel 2</strong>: di dalam satu semut, <em>setiap komponen</em> bisa memilih edge keluar secara independen.</li>
+          </ul>
+          <div class="callout">
+            <strong>Intuisi:</strong> bukan “tambah satu kabel, lalu tambah satu kabel lagi”, tetapi “setiap kelompok memilih kabel terbaiknya bersamaan”.
+          </div>
+        </div>
+
+        <div class="card" id="posisi">
+          <h2>Posisi Borůvka dibanding Prim dan Kruskal</h2>
+          <table class="table" role="table" aria-label="Perbandingan konstruksi">
+            <thead>
+              <tr>
+                <th>Gaya konstruksi</th>
+                <th>Cara membangun</th>
+                <th>Sifat</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge">Prim based</span></td>
+                <td>Tumbuh dari satu himpunan node terhubung, tambah 1 edge per langkah</td>
+                <td>sekuensial</td>
+              </tr>
+              <tr>
+                <td><span class="badge">Kruskal based</span></td>
+                <td>Pilih edge global satu per satu, cek siklus dan batasan</td>
+                <td>sekuensial</td>
+              </tr>
+              <tr>
+                <td><span class="badge">Borůvka based</span></td>
+                <td>Setiap komponen memilih 1 edge keluar, lalu merge serentak per fase</td>
+                <td>paralel secara konsep</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="muted small" style="margin-top:10px">
+            Dalam ACO, Borůvka dipakai di tahap <em>construction</em>. ACO tetap mengatur probabilitas pilihan edge via feromon dan heuristik.
+          </p>
+        </div>
+      </section>
+
+      <section class="card" id="langkah">
+        <h2>Langkah algoritma b-ACO Borůvka dengan batas derajat</h2>
+        <p class="muted">
+          Berikut versi ringkas yang mudah dipetakan ke flowchart. Batas derajat dipahami sebagai batas kapasitas simpul atau batas port node.
+        </p>
+
+        <pre><code>1. Mulai
+2. Input: graf berbobot, n, batas derajat d, parameter ACO alpha beta rho Q,
+   jumlah semut mAnts, iterasi maksimum MaxIter
+3. Inisialisasi feromon tau pada semua edge, misalnya tau0
+
+4. Untuk t dari 1 sampai MaxIter
+   4.1 Set best iterasi kosong, cost best sangat besar
+   4.2 Untuk setiap semut
+       a. Set E kosong, derajat semua simpul 0
+       b. Set setiap simpul sebagai 1 komponen
+       c. Selama jumlah komponen lebih dari 1
+          i.   Untuk tiap komponen, buat kandidat edge keluar menuju komponen lain
+          ii.  Pilih 1 edge per komponen secara probabilistik
+               dipandu tau dan heuristik biaya
+               syarat: tidak membentuk siklus antar komponen
+               dan tidak melanggar derajat u dan v
+          iii. Kumpulkan edge terpilih dari semua komponen
+          iv.  Tambahkan edge yang valid ke E, update derajat
+          v.   Merge komponen yang tersambung
+       d. Hitung cost solusi semut, simpan jika lebih baik dari best iterasi
+
+   4.3 Update feromon
+       - evaporasi: tau = (1 - rho) * tau
+       - deposit: tambah tau pada edge best, contoh proporsional Q / cost best
+
+   4.4 Cek terminasi dini
+       - jika tidak ada perbaikan selama k iterasi berturut turut, stop
+
+5. Output: solusi terbaik, memenuhi batas derajat
+6. Selesai</code></pre>
+      </section>
+
+      <section class="card" id="flowchart">
+        <h2>Flowchart b-ACO Borůvka dengan terminasi dini</h2>
+        <p class="muted">
+          Blok yang diberi label <span class="kbd">per komponen</span> adalah inti “paralel tingkat komponen”.
+          Itu artinya tiap komponen dapat memilih edge keluar secara independen pada fase yang sama.
+        </p>
+
+        <div class="flowwrap" role="img" aria-label="Flowchart b-ACO">
+          <!-- Inline SVG flowchart: self-contained, no external library -->
+          <svg width="980" height="640" viewBox="0 0 980 640" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <style>
+                .box{fill:rgba(255,255,255,.06);stroke:rgba(255,255,255,.22);stroke-width:1.2;rx:14;ry:14}
+                .box2{fill:rgba(124,58,237,.14);stroke:rgba(124,58,237,.50);stroke-width:1.3;rx:14;ry:14}
+                .box3{fill:rgba(34,197,94,.14);stroke:rgba(34,197,94,.55);stroke-width:1.3;rx:14;ry:14}
+                .box4{fill:rgba(245,158,11,.14);stroke:rgba(245,158,11,.55);stroke-width:1.3;rx:14;ry:14}
+                .box5{fill:rgba(251,113,133,.14);stroke:rgba(251,113,133,.55);stroke-width:1.3;rx:14;ry:14}
+                .t{fill:#e8ecff;font-family:ui-sans-serif,system-ui;font-size:13px}
+                .m{fill:#b8c0ff;font-family:ui-sans-serif,system-ui;font-size:12px}
+                .a{stroke:rgba(255,255,255,.35);stroke-width:1.4;marker-end:url(#arrow)}
+                .dashed{fill:rgba(0,0,0,.10);stroke:rgba(255,255,255,.18);stroke-width:1.2;stroke-dasharray:6 6;rx:18;ry:18}
+                .label{fill:#b8c0ff;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+              </style>
+              <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                <path d="M0,0 L10,4 L0,8 Z" fill="rgba(255,255,255,.45)"/>
+              </marker>
+            </defs>
+
+            <!-- Boxes -->
+            <rect class="box2" x="40" y="30" width="290" height="66"/>
+            <text class="t" x="60" y="56">START</text>
+            <text class="m" x="60" y="74">Input n, d, alpha, beta, rho, Q, mAnts, MaxIter</text>
+
+            <rect class="box" x="40" y="120" width="290" height="66"/>
+            <text class="t" x="60" y="146">Inisialisasi feromon</text>
+            <text class="m" x="60" y="164">Set tau awal pada semua edge</text>
+
+            <rect class="box4" x="40" y="210" width="290" height="66"/>
+            <text class="t" x="60" y="236">Loop iterasi</text>
+            <text class="m" x="60" y="254">t dari 1 sampai MaxIter</text>
+
+            <rect class="box" x="40" y="300" width="290" height="66"/>
+            <text class="t" x="60" y="326">Untuk setiap semut</text>
+            <text class="m" x="60" y="344">Bangun solusi menggunakan Borůvka</text>
+
+            <rect class="box3" x="400" y="300" width="540" height="250"/>
+            <text class="t" x="420" y="326">Bangun solusi semut dengan Borůvka berbatas derajat</text>
+            <text class="m" x="420" y="346">E kosong, derajat semua simpul 0, setiap simpul jadi 1 komponen</text>
+
+            <!-- dashed parallel region -->
+            <rect class="dashed" x="420" y="370" width="500" height="130"/>
+            <text class="label" x="435" y="392">PARALEL TINGKAT KOMPONEN</text>
+
+            <rect class="box" x="440" y="405" width="220" height="78"/>
+            <text class="t" x="456" y="430">Per komponen</text>
+            <text class="m" x="456" y="450">Buat kandidat edge keluar</text>
+            <text class="m" x="456" y="468">Pilih 1 edge probabilistik</text>
+
+            <rect class="box" x="680" y="405" width="220" height="78"/>
+            <text class="t" x="696" y="430">Validasi</text>
+            <text class="m" x="696" y="450">Tidak membentuk siklus</text>
+            <text class="m" x="696" y="468">Tidak melanggar derajat</text>
+
+            <rect class="box" x="440" y="505" width="460" height="58"/>
+            <text class="t" x="456" y="530">Tambahkan edge valid dan merge komponen</text>
+            <text class="m" x="456" y="548">Ulangi sampai komponen menjadi 1</text>
+
+            <rect class="box" x="40" y="390" width="290" height="66"/>
+            <text class="t" x="60" y="416">Evaluasi solusi semut</text>
+            <text class="m" x="60" y="434">Hitung cost dan update best iterasi</text>
+
+            <rect class="box4" x="40" y="480" width="290" height="66"/>
+            <text class="t" x="60" y="506">Update feromon</text>
+            <text class="m" x="60" y="524">Evaporasi dan deposit pada solusi terbaik</text>
+
+            <rect class="box5" x="40" y="570" width="290" height="52"/>
+            <text class="t" x="60" y="600">Cek terminasi dini</text>
+
+            <rect class="box2" x="400" y="570" width="540" height="52"/>
+            <text class="t" x="420" y="600">END dan Output solusi terbaik</text>
+
+            <!-- Arrows left column -->
+            <line class="a" x1="185" y1="96" x2="185" y2="120"/>
+            <line class="a" x1="185" y1="186" x2="185" y2="210"/>
+            <line class="a" x1="185" y1="276" x2="185" y2="300"/>
+            <line class="a" x1="185" y1="366" x2="185" y2="390"/>
+            <line class="a" x1="185" y1="456" x2="185" y2="480"/>
+            <line class="a" x1="185" y1="546" x2="185" y2="570"/>
+
+            <!-- Arrow from ant loop to Boruvka construction block -->
+            <line class="a" x1="330" y1="333" x2="400" y2="333"/>
+
+            <!-- Arrow from Boruvka block back to evaluation -->
+            <line class="a" x1="400" y1="340" x2="330" y2="420"/>
+
+            <!-- Arrow from early stop to end -->
+            <line class="a" x1="330" y1="596" x2="400" y2="596"/>
+
+            <!-- small loop indicator -->
+            <path class="a" d="M185 238 C120 238 120 305 185 305" fill="none"/>
+            <text class="label" x="78" y="265">ulang sampai MaxIter</text>
+
+          </svg>
+        </div>
+      </section>
+
+      <section class="card" id="early">
+        <h2>Terminasi dini bukan sekadar menunggu konvergen</h2>
+        <p class="muted">
+          Terminasi dini dipakai agar iterasi tidak “habis di belakang” saat solusi sudah stabil. Tiga ide yang bisa dipakai:
+        </p>
+
+        <div class="grid2">
+          <div class="card" style="background:rgba(124,58,237,.10)">
+            <h2>Ide 1<br/><span class="muted">Sampling based</span></h2>
+            <ul>
+              <li>Jalankan 10 sampai 20 persen iterasi awal.</li>
+              <li>Ukur stabilitas best cost dan perubahan feromon.</li>
+              <li>Jika perubahan lebih kecil dari epsilon selama k iterasi, stop.</li>
+            </ul>
+          </div>
+
+          <div class="card" style="background:rgba(34,197,94,.10)">
+            <h2>Ide 2<br/><span class="muted">Prediksi dengan bias heuristik MST</span></h2>
+            <ul>
+              <li>Buat ranking edge dari Prim, Kruskal, atau Borůvka.</li>
+              <li>Edge yang jelas jelek diberi peluang kecil.</li>
+              <li>Eksplorasi fokus pada kandidat yang masuk akal.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;background:rgba(245,158,11,.10)">
+          <h2>Ide 3<br/><span class="muted">Confidence based termination</span></h2>
+          <ul>
+            <li>Hitung skor confidence untuk solusi terbaik.</li>
+            <li>Jika confidence melewati ambang, terminate.</li>
+            <li>Indikator contoh: best cost stabil, feromon terkonsentrasi, variasi antar semut kecil.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <strong>Pesan utama:</strong> early stopping adalah “rem cerdas” berbasis indikator, bukan sekadar menunggu iterasi maksimum.
+        </div>
+      </section>
+
+      <section class="card" id="catatan">
+        <h2>Catatan implementasi untuk menjawab pertanyaan “paralel tingkat komponen itu bagaimana”</h2>
+        <ul>
+          <li><strong>Di dalam satu semut</strong>, saat jumlah komponen masih banyak, setiap komponen bisa menjalankan proses “pilih edge keluar” secara independen.</li>
+          <li><strong>Jika benar-benar diparalelkan</strong>, tiap komponen bisa dijalankan sebagai task terpisah di multi core, lalu hasilnya digabung dan divalidasi.</li>
+          <li><strong>Jika belum diparalelkan</strong>, tetap sah disebut paralel tingkat komponen secara konsep, karena struktur per fase Borůvka memang tidak bergantung urutan komponen.</li>
+          <li><strong>Batas derajat</strong> masuk sebagai aturan feasibility: edge kandidat yang membuat derajat node melebihi d langsung ditolak atau diperkecil probabilitasnya.</li>
+        </ul>
+        <div class="footer">
+          Jika diperlukan, dokumen ini bisa dijadikan lampiran metode: definisi komponen, loop fase Borůvka, aturan validasi, update feromon, dan terminasi dini.
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
